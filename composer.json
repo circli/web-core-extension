@@ -1,0 +1,30 @@
+{
+  "name": "circli/web-core",
+  "type": "circli-extension",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andreas Sundqvist",
+      "email": "andreas@oak-valley.se"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "circli/contracts": "dev-master",
+    "circli/core": "dev-master",
+    "php-di/php-di": "^6.0",
+    "psr/container": "^1.0",
+    "psr/http-message": "^1.0",
+    "psr/http-server-middleware": "^1.0",
+    "polus/adr": "^4.0",
+    "polus/fast-router": "^1.0",
+    "polus/relay-middleware-dispatcher": "^2.0",
+    "zendframework/zend-diactoros": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Circli\\WebCore\\": "src/"
+    }
+  }
+}

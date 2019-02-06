@@ -9,8 +9,8 @@ use Circli\EventDispatcher\EventDispatcherInterface;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 use Polus\Adr\Adr;
+use Polus\Adr\Interfaces\ResolverInterface;
 use Polus\Adr\Interfaces\ResponseHandlerInterface;
-use Polus\Adr\ResponseHandler\HttpResponseHandler;
 use Polus\MiddlewareDispatcher\DispatcherInterface as MiddlewareDispatcherInterface;
 use Polus\MiddlewareDispatcher\Factory as MiddlewareDispatcherFactory;
 use Polus\Router\RouterCollectionInterface;
@@ -54,13 +54,13 @@ abstract class App
 
         $this->adr = new Adr(
             $this->container->get(ResponseFactoryInterface::class),
-            new ActionResolver($this->container),
+            $this->container->get(ResolverInterface::class),
             $this->container->get(RouterCollectionInterface::class),
-            new HttpResponseHandler(),
+            $this->container->get(ResponseHandlerInterface::class),
             new MiddlewareDispatcherFactory($this->container->get(MiddlewareDispatcherInterface::class), $middlewares)
         );
 
-        if (count($this->modules)) {
+        if (\count($this->modules)) {
             foreach ($this->modules as $module) {
                 $module->initAdr($this->adr);
             }

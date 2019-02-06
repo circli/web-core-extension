@@ -35,7 +35,7 @@ abstract class App
 
     public function __construct(Environment $mode, string $containerClass = Container::class)
     {
-        $this->containerBuilder = new $containerClass($mode, \dirname(__DIR__, 2));
+        $this->containerBuilder = new $containerClass($mode, \dirname(__DIR__, 3));
         $this->eventDispatcher = $this->containerBuilder->getEventDispatcher();
         $this->eventDispatcher->listen(InitModule::class, function (InitModule $event) {
             $this->modules[] = $event->getModule();

@@ -5,9 +5,9 @@ namespace Circli\WebCore;
 use Circli\Contracts\InitAdrApplication;
 use Circli\Core\Environment;
 use Circli\Core\Events\InitModule;
+use Circli\EventDispatcher\EventDispatcherInterface;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
-use Circli\EventDispatcher\EventDispatcher;
 use Polus\Adr\Adr;
 use Polus\Adr\Interfaces\ResponseHandlerInterface;
 use Polus\Adr\ResponseHandler\HttpResponseHandler;
@@ -18,6 +18,7 @@ use Polus\Router\RouterDispatcherInterface;
 use Polus\Router\RouterMiddleware;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Zend\Diactoros\ServerRequestFactory;
 
 abstract class App
 {
@@ -27,7 +28,7 @@ abstract class App
     protected $container;
     /** @var Container */
     protected $containerBuilder;
-    /** @var \Circli\EventDispatcher\EventDispatcherInterface */
+    /** @var EventDispatcherInterface */
     protected $eventDispatcher;
     /** @var InitAdrApplication[] */
     protected $modules = [];
@@ -48,7 +49,7 @@ abstract class App
         $middlewares = new MiddlewareContainer((array)$this->container->get('middlewares'));
         $middlewares->insert(new RouterMiddleware($this->container->get(RouterDispatcherInterface::class)), 1000);
 
-        $eventManager = $this->container->get(EventDispatcher::class);
+        $eventManager = $this->container->get(EventDispatcherInterface::class);
         $eventManager->trigger(new MiddlewareBuildEvent($middlewares));
 
         $this->adr = new Adr(
@@ -68,6 +69,6 @@ abstract class App
 
     public function run(): ResponseHandlerInterface
     {
-        return $this->adr->run(\Zend\Diactoros\ServerRequestFactory::fromGlobals());
+        return $this->adr->run(ServerRequestFactory::fromGlobals());
     }
 }

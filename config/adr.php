@@ -52,7 +52,7 @@ return [
 			$container->get(RouteCollector::class)
 		);
 	},
-	ResolverInterface::class = function (ContainerInterface $container) {
+	ResolverInterface::class => function (ContainerInterface $container) {
 		return new ActionResolver($container);
 	},
 ];

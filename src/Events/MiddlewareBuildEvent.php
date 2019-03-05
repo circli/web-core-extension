@@ -4,10 +4,10 @@ namespace Circli\WebCore\Events;
 
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 
-class MiddlewareBuildEvent
+final class MiddlewareBuildEvent
 {
     /** @var MiddlewareContainer */
-    protected $middlewareContainer;
+    private $middlewareContainer;
 
     public function __construct(MiddlewareContainer $middlewareContainer)
     {

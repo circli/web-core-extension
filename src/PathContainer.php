@@ -33,12 +33,12 @@ class PathContainer implements \Circli\Contracts\PathContainer
         }
 
         //todo add error checking for file exists
-        return $this->getConfigPath().$file;
+        return $this->getConfigPath() . $file;
     }
 
     public function loadConfigFile(string $file): array
     {
-        return (array)include $this->getConfigFile($file);
+        return (array) include $this->getConfigFile($file);
     }
 
     public function getBasePath(): string

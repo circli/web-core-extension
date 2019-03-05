@@ -22,7 +22,7 @@ class Container extends \SplPriorityQueue
      * @param string|MiddlewareInterface $middleware
      * @param int $priority
      */
-    public function addPreRouter($middleware, int $priority = 500)
+    public function addPreRouter($middleware, int $priority = 500): void
     {
         if ($priority > self::MAX_PRE_PRIORITY) {
             $priority = self::MAX_PRE_PRIORITY;
@@ -34,7 +34,7 @@ class Container extends \SplPriorityQueue
      * @param string|MiddlewareInterface $middleware
      * @param int $priority
      */
-    public function addPostRouter($middleware, int $priority = 2000)
+    public function addPostRouter($middleware, int $priority = 2000): void
     {
         if ($priority < self::MIN_POST_PRIORITY) {
             $priority = self::MIN_POST_PRIORITY + 1;

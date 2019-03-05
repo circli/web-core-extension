@@ -25,4 +25,16 @@ abstract class AbstractPayload extends Payload
         $this->messages = $message;
         $this->output = new \stdClass;
     }
+
+    public static function __callStatic($name, $arguments)
+    {
+        try {
+            $status = constant(static::class . '::' . strtoupper($name));
+        }
+        catch (\Throwable $e) {
+            throw new \InvalidArgumentException('Invalid payload status');
+        }
+
+        return new static($status, ...$arguments);
+    }
 }

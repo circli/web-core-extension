@@ -22,9 +22,18 @@
     "polus/relay-middleware-dispatcher": "^2.0",
     "zendframework/zend-diactoros": "^2.0"
   },
+  "require-dev": {
+    "roave/security-advisories": "dev-master",
+    "phpunit/phpunit": "~8.0"
+  },
   "autoload": {
     "psr-4": {
       "Circli\\WebCore\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
     }
   }
 }

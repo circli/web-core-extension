@@ -5,6 +5,7 @@ namespace Circli\WebCore\Common\Responder;
 use Aura\Payload_Interface\PayloadInterface;
 use Circli\Core\JSend;
 use Circli\Core\PayloadStatusToHttpStatus;
+use Circli\WebCore\Common\Payload\LocationAwareInterface;
 use Polus\Adr\Interfaces\ResponderInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,7 +19,14 @@ class ApiResponder implements ResponderInterface
 	): ResponseInterface {
 		$jsend = JSend::fromPayload($payload);
 
-		$response->withStatus(PayloadStatusToHttpStatus::httpCode($payload));
+		$responseCode = PayloadStatusToHttpStatus::httpCode($payload, $request);
+		$response = $response->withStatus($responseCode);
+		if ($responseCode >= 300 && $responseCode < 400 && $payload instanceof LocationAwareInterface) {
+			$location = $payload->getLocation();
+			if ($location) {
+				$response = $response->withHeader('Location', $location);
+			}
+		}
 		$response = $response->withHeader('Content-Type', 'application/json');
 		// Overwrite the body instead of making a copy and dealing with the stream.
 		$response->getBody()->write(json_encode($jsend));

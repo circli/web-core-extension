@@ -5,7 +5,7 @@ namespace Circli\WebCore;
 use Circli\Contracts\InitAdrApplication;
 use Circli\Core\Environment;
 use Circli\Core\Events\InitModule;
-use Circli\EventDispatcher\EventDispatcherInterface;
+use Circli\EventDispatcher\ListenerProvider\DefaultProvider;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 use Polus\Adr\Adr;
@@ -17,6 +17,7 @@ use Polus\Router\RouterCollectionInterface;
 use Polus\Router\RouterDispatcherInterface;
 use Polus\Router\RouterMiddleware;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Zend\Diactoros\ServerRequestFactory;
 
@@ -32,12 +33,16 @@ abstract class App
     protected $eventDispatcher;
     /** @var InitAdrApplication[] */
     protected $modules = [];
+    /** @var DefaultProvider */
+    protected $eventListenerProvider;
 
-    public function __construct(Environment $mode, string $containerClass = Container::class)
+    public function __construct(Environment $mode, string $containerClass = Container::class, string $basePath = null)
     {
-        $this->containerBuilder = new $containerClass($mode, \dirname(__DIR__, 3));
+        $this->containerBuilder = new $containerClass($mode, $basePath ?? \dirname(__DIR__, 3));
         $this->eventDispatcher = $this->containerBuilder->getEventDispatcher();
-        $this->eventDispatcher->listen(InitModule::class, function (InitModule $event) {
+        $this->eventListenerProvider = new DefaultProvider();
+        $this->containerBuilder->getEventListenerProvider()->addProvider($this->eventListenerProvider);
+        $this->eventListenerProvider->listen(InitModule::class, function (InitModule $event) {
             $this->modules[] = $event->getModule();
         });
         $this->container = $this->containerBuilder->build();
@@ -49,8 +54,8 @@ abstract class App
         $middlewares = new MiddlewareContainer((array)$this->container->get('middlewares'));
         $middlewares->insert(new RouterMiddleware($this->container->get(RouterDispatcherInterface::class)), 1000);
 
-        $eventManager = $this->container->get(EventDispatcherInterface::class);
-        $eventManager->trigger(new MiddlewareBuildEvent($middlewares));
+        $eventDispatcher = $this->container->get(EventDispatcherInterface::class);
+        $eventDispatcher->dispatch(new MiddlewareBuildEvent($middlewares));
 
         $this->adr = new Adr(
             $this->container->get(ResponseFactoryInterface::class),

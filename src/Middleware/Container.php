@@ -6,6 +6,7 @@ use Psr\Http\Server\MiddlewareInterface;
 
 class Container extends \SplPriorityQueue
 {
+    public const DEFAULT_PRIORITY = 500;
     private const MAX_PRE_PRIORITY = 1000;
     private const MIN_POST_PRIORITY = 1000;
 
@@ -22,10 +23,10 @@ class Container extends \SplPriorityQueue
      * @param string|MiddlewareInterface $middleware
      * @param int $priority
      */
-    public function addPreRouter($middleware, int $priority = 500): void
+    public function addPreRouter($middleware, int $priority = self::DEFAULT_PRIORITY): void
     {
-        if ($priority > self::MAX_PRE_PRIORITY) {
-            $priority = self::MAX_PRE_PRIORITY;
+        if ($priority < self::MAX_PRE_PRIORITY) {
+            $priority = self::MAX_PRE_PRIORITY + 1;
         }
         $this->insert($middleware, $priority);
     }
@@ -36,8 +37,8 @@ class Container extends \SplPriorityQueue
      */
     public function addPostRouter($middleware, int $priority = 2000): void
     {
-        if ($priority < self::MIN_POST_PRIORITY) {
-            $priority = self::MIN_POST_PRIORITY + 1;
+        if ($priority > self::MIN_POST_PRIORITY) {
+            $priority = self::MIN_POST_PRIORITY - 1;
         }
         $this->insert($middleware, $priority);
     }

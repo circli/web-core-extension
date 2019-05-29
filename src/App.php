@@ -51,7 +51,15 @@ abstract class App
 
     protected function initAdr(): void
     {
-        $middlewares = new MiddlewareContainer((array)$this->container->get('middlewares'));
+        $rawMiddlewares = $this->container->get('middlewares');
+        if ($rawMiddlewares instanceof MiddlewareContainer) {
+            $middlewares = $rawMiddlewares;
+            $rawMiddlewares = null;
+        }
+        else {
+            $middlewares = new MiddlewareContainer((array)$rawMiddlewares);
+        }
+
         $middlewares->insert(new RouterMiddleware($this->container->get(RouterDispatcherInterface::class)), 1000);
 
         $eventDispatcher = $this->container->get(EventDispatcherInterface::class);

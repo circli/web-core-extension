@@ -63,7 +63,8 @@ class NotFoundHandler implements MiddlewareInterface
                 }
             };
 
-            $request = $request->withAttribute('route', $newRoute);
+            $response = $handler->handle($request->withAttribute('route', $newRoute));
+            return $response->withStatus(404);
         }
 
         return $handler->handle($request);

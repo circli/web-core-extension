@@ -4,6 +4,7 @@ namespace Circli\WebCore;
 
 use Circli\Contracts\ExtensionInterface;
 use Circli\Contracts\PathContainer;
+use Circli\WebCore\Session\Factory as SessionFactory;
 use function DI\autowire;
 use function DI\create;
 use function DI\get;
@@ -70,6 +71,7 @@ class Extension implements ExtensionInterface
 			ResolverInterface::class => function (ContainerInterface $container) {
 				return new ActionResolver($container);
 			},
+            SessionFactory::class => autowire(\Circli\WebCore\Session\DefaultFactory::class),
 		];
 	}
 }

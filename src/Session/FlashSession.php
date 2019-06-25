@@ -6,6 +6,8 @@ use Circli\WebCore\Session\Flash\Message;
 
 interface FlashSession
 {
+    public const FLASH_TEMPLATE_KEY = 'flashMessages__INTERNAL';
+
     public function addMessage(Message $message, string $namespace = null);
 
     /**

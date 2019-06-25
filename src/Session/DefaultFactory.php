@@ -2,7 +2,6 @@
 
 namespace Circli\WebCore\Session;
 
-use Circli\Modules\Auth\Session\StoragelessSession;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use PSR7Sessions\Storageless\Http\SessionMiddleware;

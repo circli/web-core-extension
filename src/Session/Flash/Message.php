@@ -47,7 +47,7 @@ class Message implements \JsonSerializable
     {
         return [
             'type' => $this->type,
-            'message' => $this->type,
+            'message' => $this->message,
         ];
     }
 }

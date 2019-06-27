@@ -8,13 +8,13 @@ use Circli\Core\Events\InitModule;
 use Circli\EventDispatcher\ListenerProvider\DefaultProvider;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
+use Circli\WebCore\Middleware\RouterMiddleware;
 use Polus\Adr\Interfaces\ResolverInterface;
 use Polus\Adr\Interfaces\ResponseHandlerInterface;
 use Polus\MiddlewareDispatcher\DispatcherInterface as MiddlewareDispatcherInterface;
 use Polus\MiddlewareDispatcher\Factory as MiddlewareDispatcherFactory;
 use Polus\Router\RouterCollectionInterface;
 use Polus\Router\RouterDispatcherInterface;
-use Polus\Router\RouterMiddleware;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -58,10 +58,13 @@ abstract class App
         else {
             $middlewares = new MiddlewareContainer((array)$rawMiddlewares);
         }
-
-        $middlewares->insert(new RouterMiddleware($this->container->get(RouterDispatcherInterface::class)), 1000);
-
         $eventDispatcher = $this->container->get(EventDispatcherInterface::class);
+
+        $middlewares->insert(new RouterMiddleware(
+            $this->container->get(RouterDispatcherInterface::class),
+            $eventDispatcher
+        ), 1000);
+
         $eventDispatcher->dispatch(new MiddlewareBuildEvent($middlewares));
 
         $this->adr = new Adr(

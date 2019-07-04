@@ -34,6 +34,9 @@ final class RouterMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $path = rtrim($request->getUri()->getPath(), '/');
+        $request = $request->withUri($request->getUri()->withPath($path ?: '/'));
+
         $request = $this->eventDispatcher->dispatch(new PreRouteDispatch($request))->getRequest();
         $route = $this->routerDispatcher->dispatch($request);
         if (count($route->getAttributes())) {

@@ -5,6 +5,8 @@ namespace Circli\WebCore;
 use Circli\Contracts\ExtensionInterface;
 use Circli\Contracts\PathContainer;
 use Circli\WebCore\Session\Factory as SessionFactory;
+use Polus\Adr\ActionDispatcherFactory;
+use Polus\MiddlewareDispatcher\FactoryInterface;
 use function DI\autowire;
 use function DI\create;
 use function DI\get;
@@ -71,7 +73,16 @@ class Extension implements ExtensionInterface
 			ResolverInterface::class => function (ContainerInterface $container) {
 				return new ActionResolver($container);
 			},
-            SessionFactory::class => autowire(\Circli\WebCore\Session\DefaultFactory::class),
+			SessionFactory::class => autowire(\Circli\WebCore\Session\DefaultFactory::class),
+            ActionDispatcherFactory::class => static function (ContainerInterface $container) {
+		        return new ActionDispatcherFactory(
+                    $container->get(ResolverInterface::class),
+                    $container->get(ResponseFactoryInterface::class),
+                    function (ResolverInterface $resolver, ResponseFactoryInterface $responseFactory, FactoryInterface $middlewareFactory) {
+                        return new ActionDispatcher($resolver, $responseFactory, $middlewareFactory);
+                    }
+                );
+            },
 		];
 	}
 }

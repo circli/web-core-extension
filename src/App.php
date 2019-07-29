@@ -9,6 +9,7 @@ use Circli\EventDispatcher\ListenerProvider\DefaultProvider;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 use Circli\WebCore\Middleware\RouterMiddleware;
+use Polus\Adr\ActionDispatcherFactory;
 use Polus\Adr\Interfaces\ResolverInterface;
 use Polus\Adr\Interfaces\ResponseHandlerInterface;
 use Polus\MiddlewareDispatcher\DispatcherInterface as MiddlewareDispatcherInterface;
@@ -73,7 +74,8 @@ abstract class App
             $this->container->get(RouterCollectionInterface::class),
             $this->container->get(ResponseHandlerInterface::class),
             new MiddlewareDispatcherFactory($this->container->get(MiddlewareDispatcherInterface::class), $middlewares),
-            $eventDispatcher
+            $eventDispatcher,
+            $this->container->get(ActionDispatcherFactory::class)
         );
 
         if (\count($this->modules)) {

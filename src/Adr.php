@@ -3,6 +3,7 @@
 namespace Circli\WebCore;
 
 use Circli\WebCore\Events\PreRegisterRoute;
+use Polus\Adr\ActionDispatcherFactory;
 use Polus\Adr\Interfaces\ResolverInterface;
 use Polus\Adr\Interfaces\ResponseHandlerInterface;
 use Polus\MiddlewareDispatcher\FactoryInterface as MiddlewareFactoryInterface;
@@ -23,9 +24,10 @@ class Adr extends \Polus\Adr\Adr
         RouterCollectionInterface $routerContainer,
         ResponseHandlerInterface $responseHandler,
         MiddlewareFactoryInterface $middlewareFactory,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ActionDispatcherFactory $actionDispatcherFactory
     ) {
-        parent::__construct($responseFactory, $actionResolver, $routerContainer, $responseHandler, $middlewareFactory);
+        parent::__construct($responseFactory, $actionResolver, $routerContainer, $responseHandler, $middlewareFactory, $actionDispatcherFactory);
         $this->eventDispatcher = $eventDispatcher;
     }
 

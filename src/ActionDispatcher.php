@@ -3,13 +3,13 @@
 namespace Circli\WebCore;
 
 use Circli\WebCore\Exception\AccessDenied;
-use StyleWish\Modules\ArtemisBase\Web\Error\Actions\NotFoundAction;
+use Circli\WebCore\Exception\NotFoundInterface;
 
 class ActionDispatcher extends \Polus\Adr\ActionDispatcher
 {
     protected function handleInputException(\Throwable $e)
     {
-        if ($e instanceof NotFoundAction) {
+        if ($e instanceof NotFoundInterface) {
             return $this->getResponseFactory()->createResponse(404);
         }
         if ($e instanceof AccessDenied) {

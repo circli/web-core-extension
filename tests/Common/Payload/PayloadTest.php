@@ -24,6 +24,24 @@ class PayloadTest extends TestCase
         $this->assertSame($arg2, $output->a2);
     }
 
+    public function testCallStaticWithArgumentsAndDefaultConstructor(): void
+    {
+        $testData = ['test' => 1];
+        $payload = PayloadWithDefaultConstructor::TEST($testData);
+        $this->assertSame(PayloadWithDefaultConstructor::TEST, $payload->getStatus());
+        $output = $payload->getOutput();
+        $this->assertSame($testData, $output);
+    }
+
+    public function testCallStaticWithMessageAndDefaultConstructor(): void
+    {
+        $payload = PayloadWithDefaultConstructor::ERROR('test');
+        $this->assertSame(PayloadWithDefaultConstructor::ERROR, $payload->getStatus());
+        $output = $payload->getOutput();
+        $this->assertInstanceOf(\stdClass::class, $output);
+        $this->assertSame('test', $payload->getMessages());
+    }
+
     public function testInvalidStatus(): void
     {
         $this->expectException(\InvalidArgumentException::class);

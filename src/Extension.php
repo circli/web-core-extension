@@ -32,53 +32,57 @@ use Zend\Diactoros\ResponseFactory;
 
 class Extension implements ExtensionInterface
 {
-	/** @var PathContainer */
-	private $paths;
+    /** @var PathContainer */
+    private $paths;
 
-	public function __construct(PathContainer $paths)
-	{
-		$this->paths = $paths;
-	}
+    public function __construct(PathContainer $paths)
+    {
+        $this->paths = $paths;
+    }
 
-	public function configure(): array
-	{
-		return [
-			'adr.relay_resolver' => function (ContainerInterface $container) {
-				return function ($middleware) use ($container) {
-					if ($middleware instanceof MiddlewareInterface) {
-						return $middleware;
-					}
+    public function configure(): array
+    {
+        return [
+            'adr.relay_resolver' => function (ContainerInterface $container) {
+                return function ($middleware) use ($container) {
+                    if ($middleware instanceof MiddlewareInterface) {
+                        return $middleware;
+                    }
 
-					return $container->get($middleware);
-				};
-			},
-			ResponseHandlerInterface::class => autowire(HttpResponseHandler::class),
-			ResponseFactoryInterface::class => autowire(ResponseFactory::class),
-			RequestFactoryInterface::class => create(RequestFactory::class),
-			MiddlewareDispatcherInterface::class => create(RelayDispatcher::class)->constructor(
-				get(ResponseFactoryInterface::class),
-				get('adr.relay_resolver')
-			),
-			RouteCollector::class => create(RouteCollector::class)->constructor(
-				get(Std::class),
-				get(DataGeneratorGroupCountBased::class)
-			),
-			RouterCollectionInterface::class => autowire(RouterCollection::class),
-			RouterDispatcherInterface::class => function (ContainerInterface $container) {
-				return new FastRouteDispatcher(
-					GroupCountBased::class,
-					$container->get(RouteCollector::class)
-				);
-			},
-			ResolverInterface::class => function (ContainerInterface $container) {
-				return new ActionResolver($container);
-			},
-			SessionFactory::class => autowire(\Circli\WebCore\Session\DefaultFactory::class),
+                    return $container->get($middleware);
+                };
+            },
+            ResponseHandlerInterface::class => autowire(HttpResponseHandler::class),
+            ResponseFactoryInterface::class => autowire(ResponseFactory::class),
+            RequestFactoryInterface::class => create(RequestFactory::class),
+            MiddlewareDispatcherInterface::class => create(RelayDispatcher::class)->constructor(
+                get(ResponseFactoryInterface::class),
+                get('adr.relay_resolver')
+            ),
+            RouteCollector::class => create(RouteCollector::class)->constructor(
+                get(Std::class),
+                get(DataGeneratorGroupCountBased::class)
+            ),
+            RouterCollectionInterface::class => autowire(RouterCollection::class),
+            RouterDispatcherInterface::class => function (ContainerInterface $container) {
+                return new FastRouteDispatcher(
+                    GroupCountBased::class,
+                    $container->get(RouteCollector::class)
+                );
+            },
+            ResolverInterface::class => function (ContainerInterface $container) {
+                return new ActionResolver($container);
+            },
+            SessionFactory::class => autowire(\Circli\WebCore\Session\DefaultFactory::class),
             ActionDispatcherFactory::class => static function (ContainerInterface $container) {
-		        return new ActionDispatcherFactory(
+                return new ActionDispatcherFactory(
                     $container->get(ResolverInterface::class),
                     $container->get(ResponseFactoryInterface::class),
-                    function (ResolverInterface $resolver, ResponseFactoryInterface $responseFactory, FactoryInterface $middlewareFactory) {
+                    function (
+                        ResolverInterface $resolver,
+                        ResponseFactoryInterface $responseFactory,
+                        FactoryInterface $middlewareFactory
+                    ) {
                         return new ActionDispatcher($resolver, $responseFactory, $middlewareFactory);
                     }
                 );

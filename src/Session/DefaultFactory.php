@@ -26,5 +26,9 @@ class DefaultFactory implements Factory
         if ($sessionCls === FlashSession::class) {
             return new PhpFlashSession();
         }
+
+        if ($sessionCls === ObjectSession::class) {
+            return new PhpObjectSession();
+        }
     }
 }

@@ -30,5 +30,6 @@ class DefaultFactory implements Factory
         if ($sessionCls === ObjectSession::class) {
             return new PhpObjectSession();
         }
+        return null;
     }
 }

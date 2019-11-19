@@ -4,7 +4,7 @@ namespace Circli\WebCore\Session;
 
 interface ObjectSession
 {
-    public function addObject(object $value);
+    public function addObject(object $value, string $key = null);
 
     /**
      * Retrieve object from session

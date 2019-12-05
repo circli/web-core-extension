@@ -21,8 +21,8 @@ class ApiResponder implements ResponderInterface
 
 		$responseCode = PayloadStatusToHttpStatus::httpCode($payload, $request);
 		$response = $response->withStatus($responseCode);
-		if ($responseCode >= 300 && $responseCode < 400 && $payload instanceof LocationAwareInterface) {
-			$location = $payload->getLocation();
+		if (($responseCode === 201 || ($responseCode >= 300 && $responseCode < 400)) && $payload instanceof LocationAwareInterface) {
+			$location = $payload->getLocation($request);
 			if ($location) {
 				$response = $response->withHeader('Location', $location);
 			}

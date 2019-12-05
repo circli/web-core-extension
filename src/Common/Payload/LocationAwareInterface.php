@@ -2,7 +2,9 @@
 
 namespace Circli\WebCore\Common\Payload;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 interface LocationAwareInterface
 {
-	public function getLocation(): string;
+	public function getLocation(ServerRequestInterface $request): string;
 }

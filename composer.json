@@ -11,8 +11,8 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "circli/contracts": "dev-master",
-    "circli/core": "dev-master",
+    "circli/contracts": "^1.0",
+    "circli/core": "^1.0",
     "php-di/php-di": "^6.0",
     "psr/container": "^1.0",
     "psr/http-message": "^1.0",

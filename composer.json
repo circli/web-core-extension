@@ -20,7 +20,7 @@
     "polus/adr": "^4.3",
     "polus/fast-router": "^1.0",
     "polus/relay-middleware-dispatcher": "^2.0",
-    "zendframework/zend-diactoros": "^2.0"
+    "laminas/laminas-diactoros": "^2.0"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master",

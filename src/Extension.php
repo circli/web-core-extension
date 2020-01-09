@@ -28,8 +28,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
-use Zend\Diactoros\RequestFactory;
-use Zend\Diactoros\ResponseFactory;
+use Laminas\Diactoros\RequestFactory;
+use Laminas\Diactoros\ResponseFactory;
 
 class Extension implements ExtensionInterface
 {

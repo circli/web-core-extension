@@ -6,6 +6,7 @@ use Circli\Contracts\InitAdrApplication;
 use Circli\Core\Environment;
 use Circli\Core\Events\InitModule;
 use Circli\EventDispatcher\ListenerProvider\DefaultProvider;
+use Circli\WebCore\Events\Listeners\CollectAdrModules;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 use Circli\WebCore\Middleware\RouterMiddleware;
@@ -31,20 +32,15 @@ abstract class App
     protected $containerBuilder;
     /** @var EventDispatcherInterface */
     protected $eventDispatcher;
-    /** @var InitAdrApplication[] */
-    protected $modules = [];
-    /** @var DefaultProvider */
-    protected $eventListenerProvider;
+	/** @var CollectAdrModules */
+	private $adrModuleCollector;
 
-    public function __construct(Environment $mode, string $containerClass = Container::class, string $basePath = null)
+	public function __construct(Environment $mode, string $containerClass = Container::class, string $basePath = null)
     {
         $this->containerBuilder = new $containerClass($mode, $basePath ?? \dirname(__DIR__, 3));
         $this->eventDispatcher = $this->containerBuilder->getEventDispatcher();
-        $this->eventListenerProvider = new DefaultProvider();
-        $this->containerBuilder->getEventListenerProvider()->addProvider($this->eventListenerProvider);
-        $this->eventListenerProvider->listen(InitModule::class, function (InitModule $event) {
-            $this->modules[] = $event->getModule();
-        });
+        $this->adrModuleCollector = new CollectAdrModules();
+        $this->containerBuilder->getEventListenerProvider()->addProvider($this->adrModuleCollector);
         $this->container = $this->containerBuilder->build();
         $this->initAdr();
     }
@@ -59,14 +55,13 @@ abstract class App
         else {
             $middlewares = new MiddlewareContainer((array)$rawMiddlewares);
         }
-        $eventDispatcher = $this->container->get(EventDispatcherInterface::class);
 
         $middlewares->insert(new RouterMiddleware(
             $this->container->get(RouterDispatcherInterface::class),
-            $eventDispatcher
+            $this->eventDispatcher
         ), 1000);
 
-        $eventDispatcher->dispatch(new MiddlewareBuildEvent($middlewares));
+		$this->eventDispatcher->dispatch(new MiddlewareBuildEvent($middlewares));
 
         $this->adr = new Adr(
             $this->container->get(ResponseFactoryInterface::class),
@@ -74,12 +69,12 @@ abstract class App
             $this->container->get(RouterCollectionInterface::class),
             $this->container->get(ResponseHandlerInterface::class),
             new MiddlewareDispatcherFactory($this->container->get(MiddlewareDispatcherInterface::class), $middlewares),
-            $eventDispatcher,
+			$this->eventDispatcher,
             $this->container->get(ActionDispatcherFactory::class)
         );
 
-        if (\count($this->modules)) {
-            foreach ($this->modules as $module) {
+        if (\count($this->adrModuleCollector)) {
+            foreach ($this->adrModuleCollector as $module) {
                 $module->initAdr($this->adr, $this->container);
             }
         }

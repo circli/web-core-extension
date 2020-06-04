@@ -14,7 +14,6 @@ final class CollectAdrModules implements ListenerProviderInterface, \Countable, 
 	{
 		$module = $event->getModule();
 		if ($module instanceof InitAdrApplication) {
-			error_log('collect module: ' . get_class($module));
 			$this->modules[get_class($module)] = $module;
 		}
 	}

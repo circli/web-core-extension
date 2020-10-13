@@ -4,7 +4,7 @@ namespace Circli\WebCore\Common\Payload;
 
 trait LocationAwareTrait
 {
-	protected $location;
+    protected string $location = '';
 	public function getLocation(): string
 	{
 		return (string)$this->location;

@@ -2,10 +2,14 @@
 
 namespace Circli\WebCore\Common\Payload;
 
-use Aura\Payload\Payload;
+use PayloadInterop\DomainPayload;
 
-abstract class AbstractPayload extends Payload
+abstract class AbstractPayload implements DomainPayload
 {
+    protected string $status;
+    protected array $result = [];
+    protected string $message;
+
     public function __construct(string $status, $message = null)
     {
         if (!\defined(static::class . '::ALLOWED_STATUS')) {
@@ -14,20 +18,20 @@ abstract class AbstractPayload extends Payload
         if (!\in_array($status, static::ALLOWED_STATUS, true)) {
             throw new \InvalidArgumentException('Invalid payload status');
         }
-        $this->output = new \stdClass;
 
+        if (is_array($message)) {
+            $this->result = $message;
+            $message = null;
+        }
         if ($message === null && defined(static::class . '::MESSAGES') && isset(static::MESSAGES[$status])) {
             $message = static::MESSAGES[$status];
-        }
-        elseif (!is_string($message) && $message !== null) {
-            $this->output = $message;
         }
         if ($message === null) {
             $message = $status;
         }
 
         $this->status = $status;
-        $this->messages = $message;
+        $this->message = (string)$message;
     }
 
     public static function __callStatic($name, $arguments)
@@ -41,4 +45,20 @@ abstract class AbstractPayload extends Payload
 
         return new static($status, ...$arguments);
     }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function getResult(): array
+    {
+        return $this->result;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
 }

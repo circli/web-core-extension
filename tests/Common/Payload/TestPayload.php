@@ -25,10 +25,10 @@ class TestPayload extends AbstractPayload
         parent::__construct($status);
 
         if ($arg1) {
-            $this->output->a1 = $arg1;
+            $this->result['a1'] = $arg1;
         }
         if ($arg2) {
-            $this->output->a2 = $arg2;
+            $this->result['a2'] = $arg2;
         }
     }
 }

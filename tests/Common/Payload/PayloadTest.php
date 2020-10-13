@@ -10,7 +10,7 @@ class PayloadTest extends TestCase
     {
         $payload = TestPayload::ERROR();
         $this->assertSame(TestPayload::ERROR, $payload->getStatus());
-        $this->assertSame('Error default message', $payload->getMessages());
+        $this->assertSame('Error default message', $payload->getMessage());
     }
 
     public function testCallStaticWithArguments(): void
@@ -19,9 +19,9 @@ class PayloadTest extends TestCase
         $arg2 = random_bytes(10);
         $payload = TestPayload::TEST($arg1, $arg2);
         $this->assertSame(TestPayload::TEST, $payload->getStatus());
-        $output = $payload->getOutput();
-        $this->assertSame($arg1, $output->a1);
-        $this->assertSame($arg2, $output->a2);
+        $output = $payload->getResult();
+        $this->assertSame($arg1, $output['a1']);
+        $this->assertSame($arg2, $output['a2']);
     }
 
     public function testCallStaticWithArgumentsAndDefaultConstructor(): void
@@ -29,7 +29,7 @@ class PayloadTest extends TestCase
         $testData = ['test' => 1];
         $payload = PayloadWithDefaultConstructor::TEST($testData);
         $this->assertSame(PayloadWithDefaultConstructor::TEST, $payload->getStatus());
-        $output = $payload->getOutput();
+        $output = $payload->getResult();
         $this->assertSame($testData, $output);
     }
 
@@ -37,9 +37,9 @@ class PayloadTest extends TestCase
     {
         $payload = PayloadWithDefaultConstructor::ERROR('test');
         $this->assertSame(PayloadWithDefaultConstructor::ERROR, $payload->getStatus());
-        $output = $payload->getOutput();
-        $this->assertInstanceOf(\stdClass::class, $output);
-        $this->assertSame('test', $payload->getMessages());
+        $output = $payload->getResult();
+        $this->assertSame([], $output);
+        $this->assertSame('test', $payload->getMessage());
     }
 
     public function testInvalidStatus(): void

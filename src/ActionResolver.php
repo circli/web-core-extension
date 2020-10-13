@@ -2,48 +2,36 @@
 
 namespace Circli\WebCore;
 
-use Polus\Adr\Interfaces\ResolverInterface;
+use Polus\Adr\Interfaces\Resolver;
+use Polus\Adr\Interfaces\Responder;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class ActionResolver implements ResolverInterface
+class ActionResolver implements Resolver
 {
-	/** @var ContainerInterface */
-	private $container;
+    private ContainerInterface $container;
 
-	public function __construct(ContainerInterface $container)
-	{
-		$this->container = $container;
-	}
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
 
-	protected function resolve($key)
-	{
-		if (\is_callable($key)) {
-			return $key;
-		}
-		try {
-			return $this->container->get($key);
-		}
-		catch (NotFoundExceptionInterface $e) {
-			if (\is_string($key) && class_exists($key)) {
-				return new $key();
-			}
-		}
-		return null;
-	}
+    public function resolve(?string $class): callable
+    {
+        try {
+            return $this->container->get($class);
+        }
+        catch (NotFoundExceptionInterface $e) {
+            if (\is_string($class) && class_exists($class)) {
+                return new $class();
+            }
+        }
+        throw new class implements NotFoundExceptionInterface {
+        };
+    }
 
-	public function resolveDomain($domain): callable
-	{
-		return $this->resolve($domain);
-	}
-
-	public function resolveInput($input): callable
-	{
-		return $this->resolve($input);
-	}
-
-	public function resolveResponder($responder): callable
-	{
-		return $this->resolve($responder);
-	}
+    public function resolveResponder(?string $responder): Responder
+    {
+        return $this->resolve($responder);
+    }
 }

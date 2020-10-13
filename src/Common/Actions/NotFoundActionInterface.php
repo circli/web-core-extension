@@ -2,8 +2,8 @@
 
 namespace Circli\WebCore\Common\Actions;
 
-use Polus\Adr\Interfaces\ActionInterface;
+use Polus\Adr\Interfaces\Action;
 
-interface NotFoundActionInterface extends ActionInterface
+interface NotFoundActionInterface extends Action
 {
 }

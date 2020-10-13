@@ -2,18 +2,15 @@
 
 namespace Circli\WebCore\Events;
 
-use Polus\Adr\Interfaces\ActionInterface;
+use Polus\Adr\Interfaces\Action;
 
 final class PreRegisterRoute
 {
-    /** @var string */
-    private $method;
-    /** @var string */
-    private $route;
-    /** @var ActionInterface */
-    private $action;
+    private string $method;
+    private string $route;
+    private Action $action;
 
-    public function __construct(string $method, string $route, ActionInterface $action)
+    public function __construct(string $method, string $route, Action $action)
     {
         $this->method = $method;
         $this->route = $route;
@@ -30,7 +27,7 @@ final class PreRegisterRoute
         return $this->route;
     }
 
-    public function getAction(): ActionInterface
+    public function getAction(): Action
     {
         return $this->action;
     }

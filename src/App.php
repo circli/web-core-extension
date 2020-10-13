@@ -3,48 +3,45 @@
 namespace Circli\WebCore;
 
 use Circli\Contracts\InitAdrApplication;
+use Circli\Contracts\InitHttpApplication;
+use Circli\Contracts\ModuleInterface;
 use Circli\Core\Environment;
-use Circli\Core\Events\InitModule;
-use Circli\EventDispatcher\ListenerProvider\DefaultProvider;
+use Circli\WebCore\Events\Listeners\CollectAdrModules;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 use Circli\WebCore\Middleware\RouterMiddleware;
-use Polus\Adr\ActionDispatcherFactory;
-use Polus\Adr\Interfaces\ResolverInterface;
-use Polus\Adr\Interfaces\ResponseHandlerInterface;
+use Laminas\Diactoros\ServerRequestFactory;
+use Polus\Adr\Interfaces\ActionDispatcher;
+use Polus\Adr\Interfaces\Resolver;
+use Polus\Adr\Interfaces\ResponseHandler;
 use Polus\MiddlewareDispatcher\DispatcherInterface as MiddlewareDispatcherInterface;
 use Polus\MiddlewareDispatcher\Factory as MiddlewareDispatcherFactory;
-use Polus\Router\RouterCollectionInterface;
-use Polus\Router\RouterDispatcherInterface;
+use Polus\Router\RouterCollection;
+use Polus\Router\RouterDispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
-use Zend\Diactoros\ServerRequestFactory;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-abstract class App
+abstract class App implements RequestHandlerInterface
 {
-    /** @var Adr */
-    protected $adr;
-    /** @var ContainerInterface */
-    protected $container;
-    /** @var Container */
-    protected $containerBuilder;
-    /** @var EventDispatcherInterface */
-    protected $eventDispatcher;
-    /** @var InitAdrApplication[] */
-    protected $modules = [];
-    /** @var DefaultProvider */
-    protected $eventListenerProvider;
+    protected Adr $adr;
+    protected ContainerInterface $container;
+    protected CollectAdrModules $adrModules;
+    protected Container $containerBuilder;
+    protected EventDispatcherInterface $eventDispatcher;
+    /** @var ModuleInterface[] */
+    protected array $modules = [];
+
 
     public function __construct(Environment $mode, string $containerClass = Container::class, string $basePath = null)
     {
         $this->containerBuilder = new $containerClass($mode, $basePath ?? \dirname(__DIR__, 3));
         $this->eventDispatcher = $this->containerBuilder->getEventDispatcher();
-        $this->eventListenerProvider = new DefaultProvider();
-        $this->containerBuilder->getEventListenerProvider()->addProvider($this->eventListenerProvider);
-        $this->eventListenerProvider->listen(InitModule::class, function (InitModule $event) {
-            $this->modules[] = $event->getModule();
-        });
+        $this->adrModules = new CollectAdrModules();
+        $this->containerBuilder->getEventListenerProvider()->addProvider($this->adrModules);
         $this->container = $this->containerBuilder->build();
         $this->initAdr();
     }
@@ -62,7 +59,7 @@ abstract class App
         $eventDispatcher = $this->container->get(EventDispatcherInterface::class);
 
         $middlewares->insert(new RouterMiddleware(
-            $this->container->get(RouterDispatcherInterface::class),
+            $this->container->get(RouterDispatcher::class),
             $eventDispatcher
         ), 1000);
 
@@ -70,23 +67,32 @@ abstract class App
 
         $this->adr = new Adr(
             $this->container->get(ResponseFactoryInterface::class),
-            $this->container->get(ResolverInterface::class),
-            $this->container->get(RouterCollectionInterface::class),
-            $this->container->get(ResponseHandlerInterface::class),
+            $this->container->get(Resolver::class),
+            $this->container->get(RouterCollection::class),
+            $this->container->get(ResponseHandler::class),
             new MiddlewareDispatcherFactory($this->container->get(MiddlewareDispatcherInterface::class), $middlewares),
             $eventDispatcher,
-            $this->container->get(ActionDispatcherFactory::class)
+            $this->container->get(ActionDispatcher::class)
         );
 
-        if (\count($this->modules)) {
-            foreach ($this->modules as $module) {
+        foreach ($this->adrModules as $module) {
+            if ($module instanceof InitAdrApplication) {
                 $module->initAdr($this->adr, $this->container);
+            }
+            elseif ($module instanceof InitHttpApplication) {
+                $module->initHttp($this->adr, $this->container);
             }
         }
     }
 
-    public function run(): ResponseHandlerInterface
+    public function run(): ResponseHandler
     {
         return $this->adr->run(ServerRequestFactory::fromGlobals());
     }
+
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->adr->handle($request);
+    }
+
 }

@@ -4,7 +4,7 @@ namespace Circli\WebCore\Middleware;
 
 use Circli\WebCore\Events\PostRouteDispatch;
 use Circli\WebCore\Events\PreRouteDispatch;
-use Polus\Router\RouterDispatcherInterface;
+use Polus\Router\RouterDispatcher;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,12 +13,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class RouterMiddleware implements MiddlewareInterface
 {
-    /** @var RouterDispatcherInterface */
-    private $routerDispatcher;
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
+    private RouterDispatcher $routerDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct(RouterDispatcherInterface $routerDispatcher, EventDispatcherInterface $eventDispatcher)
+    public function __construct(RouterDispatcher $routerDispatcher, EventDispatcherInterface $eventDispatcher)
     {
         $this->routerDispatcher = $routerDispatcher;
         $this->eventDispatcher = $eventDispatcher;

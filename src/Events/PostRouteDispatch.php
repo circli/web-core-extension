@@ -2,28 +2,26 @@
 
 namespace Circli\WebCore\Events;
 
-use Polus\Router\RouteInterface;
+use Polus\Router\Route;
 use Psr\Http\Message\ServerRequestInterface;
 
 final class PostRouteDispatch
 {
-    /** @var RouteInterface */
-    private $route;
-    /** @var ServerRequestInterface */
-    private $request;
+    private Route $route;
+    private ServerRequestInterface $request;
 
-    public function __construct(RouteInterface $route, ServerRequestInterface $request)
+    public function __construct(Route $route, ServerRequestInterface $request)
     {
         $this->route = $route;
         $this->request = $request;
     }
 
-    public function getRoute(): RouteInterface
+    public function getRoute(): Route
     {
         return $this->route;
     }
 
-    public function setRoute(RouteInterface $route): void
+    public function setRoute(Route $route): void
     {
         $this->route = $route;
     }

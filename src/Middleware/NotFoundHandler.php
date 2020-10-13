@@ -3,9 +3,9 @@
 namespace Circli\WebCore\Middleware;
 
 use Circli\WebCore\Common\Actions\NotFoundActionInterface;
-use Polus\Adr\Interfaces\ActionInterface;
-use Polus\Router\RouteInterface;
-use Polus\Router\RouterDispatcherInterface;
+use Polus\Adr\Interfaces\Action;
+use Polus\Router\Route;
+use Polus\Router\RouterDispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -13,8 +13,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class NotFoundHandler implements MiddlewareInterface
 {
-    /** @var NotFoundActionInterface */
-    private $notFoundAction;
+    private NotFoundActionInterface $notFoundAction;
 
     public function __construct(NotFoundActionInterface $notFoundAction)
     {
@@ -25,7 +24,7 @@ class NotFoundHandler implements MiddlewareInterface
     {
         $reDispatch = clone $handler;
         $route = $request->getAttribute('route');
-        if ($route instanceof RouteInterface && $route->getStatus() === RouterDispatcherInterface::NOT_FOUND) {
+        if ($route instanceof Route && $route->getStatus() === RouterDispatcher::NOT_FOUND) {
             return $this->dispatchNotFound($request, $handler, $route);
         }
 
@@ -37,15 +36,13 @@ class NotFoundHandler implements MiddlewareInterface
     }
 
 
-    private function dispatchNotFound(ServerRequestInterface $request, RequestHandlerInterface $handler, RouteInterface $route)
+    private function dispatchNotFound(ServerRequestInterface $request, RequestHandlerInterface $handler, Route $route)
     {
-        $newRoute = new class($this->notFoundAction, $route) implements RouteInterface {
-            /** @var ActionInterface */
-            private $action;
-            /** @var RouteInterface */
-            private $route;
+        $newRoute = new class($this->notFoundAction, $route) implements Route {
+            private Action $action;
+            private Route $route;
 
-            public function __construct(ActionInterface $action, RouteInterface $route)
+            public function __construct(Action $action, Route $route)
             {
                 $this->action = $action;
                 $this->route = $route;
@@ -53,7 +50,7 @@ class NotFoundHandler implements MiddlewareInterface
 
             public function getStatus(): int
             {
-                return RouterDispatcherInterface::FOUND;
+                return RouterDispatcher::FOUND;
             }
 
             public function getAllows(): array

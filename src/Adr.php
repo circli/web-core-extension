@@ -3,39 +3,34 @@
 namespace Circli\WebCore;
 
 use Circli\WebCore\Events\PreRegisterRoute;
-use Polus\Adr\ActionDispatcherFactory;
-use Polus\Adr\Interfaces\ResolverInterface;
-use Polus\Adr\Interfaces\ResponseHandlerInterface;
-use Polus\MiddlewareDispatcher\FactoryInterface as MiddlewareFactoryInterface;
-use Polus\Router\RouterCollectionInterface;
+use Polus\Adr\Interfaces\ActionDispatcher;
+use Polus\Adr\Interfaces\Resolver;
+use Polus\Adr\Interfaces\ResponseHandler;
+use Polus\MiddlewareDispatcher\FactoryInterface as MiddlewareFactory;
+use Polus\Router\RouterCollection;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 
 class Adr extends \Polus\Adr\Adr
 {
-    private const ALLOWED_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'attach'];
-
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
-        ResolverInterface $actionResolver,
-        RouterCollectionInterface $routerContainer,
-        ResponseHandlerInterface $responseHandler,
-        MiddlewareFactoryInterface $middlewareFactory,
+        Resolver $actionResolver,
+        RouterCollection $routerContainer,
+        ResponseHandler $responseHandler,
+        MiddlewareFactory $middlewareFactory,
         EventDispatcherInterface $eventDispatcher,
-        ActionDispatcherFactory $actionDispatcherFactory
+        ?ActionDispatcher $actionDispatcher = null
     ) {
-        parent::__construct($responseFactory, $actionResolver, $routerContainer, $responseHandler, $middlewareFactory, $actionDispatcherFactory);
+        parent::__construct($responseFactory, $actionResolver, $routerContainer, $responseHandler, $middlewareFactory, $actionDispatcher);
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function __call($name, $arguments)
+    protected function routerContainerProxy(string $method, ...$args)
     {
-        if (in_array($name, self::ALLOWED_METHODS, true)) {
-            $this->eventDispatcher->dispatch(new PreRegisterRoute($name, ...$arguments));
-            parent::__call($name, $arguments);
-        }
+        $this->eventDispatcher->dispatch(new PreRegisterRoute($method, ...$args));
+        parent::routerContainerProxy($method, $args);
     }
 }

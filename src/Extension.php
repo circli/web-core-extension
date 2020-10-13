@@ -4,10 +4,20 @@ namespace Circli\WebCore;
 
 use Circli\Contracts\ExtensionInterface;
 use Circli\Contracts\PathContainer;
+use Circli\WebCore\Session\DefaultFactory;
 use Circli\WebCore\Session\Factory as SessionFactory;
-use Polus\Adr\ActionDispatcher\SimpleActionDispatcher;
-use Polus\Adr\ActionDispatcherFactory;
-use Polus\MiddlewareDispatcher\FactoryInterface;
+use Laminas\Diactoros\RequestFactory;
+use Laminas\Diactoros\ResponseFactory;
+use Polus\Adr\ActionDispatcher\HandlerActionDispatcher;
+use Polus\Adr\ActionDispatcher\MiddlewareActionDispatcher;
+use Polus\Adr\ActionHandler\EventActionHandler;
+use Polus\Adr\Interfaces\ActionDispatcher;
+use Polus\Adr\Interfaces\Resolver;
+use Polus\Adr\Interfaces\ResponseHandler;
+use Polus\MiddlewareDispatcher\Factory as MiddlewareDispatcherFactory;
+use Polus\Router\RouterCollection;
+use Polus\Router\RouterDispatcher;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use function DI\autowire;
 use function DI\create;
 use function DI\get;
@@ -15,33 +25,19 @@ use FastRoute\DataGenerator\GroupCountBased as DataGeneratorGroupCountBased;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
-use Polus\Adr\Interfaces\ResolverInterface;
-use Polus\Adr\Interfaces\ResponseHandlerInterface;
 use Polus\Adr\ResponseHandler\HttpResponseHandler;
 use Polus\MiddlewareDispatcher\DispatcherInterface as MiddlewareDispatcherInterface;
 use Polus\MiddlewareDispatcher\Relay\Dispatcher as RelayDispatcher;
 use Polus\Router\FastRoute\Dispatcher as FastRouteDispatcher;
-use Polus\Router\FastRoute\RouterCollection;
-use Polus\Router\RouterCollectionInterface;
-use Polus\Router\RouterDispatcherInterface;
+use Polus\Router\FastRoute\RouterCollection as FastRouterCollection;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
-use Zend\Diactoros\RequestFactory;
-use Zend\Diactoros\ResponseFactory;
 
 class Extension implements ExtensionInterface
 {
-    /** @var PathContainer */
-    private $paths;
-
-    public function __construct(PathContainer $paths)
-    {
-        $this->paths = $paths;
-    }
-
-    public function configure(): array
+    public function configure(PathContainer $paths = null): array
     {
         return [
             'adr.relay_resolver' => function (ContainerInterface $container) {
@@ -53,7 +49,7 @@ class Extension implements ExtensionInterface
                     return $container->get($middleware);
                 };
             },
-            ResponseHandlerInterface::class => autowire(HttpResponseHandler::class),
+            ResponseHandler::class => autowire(HttpResponseHandler::class),
             ResponseFactoryInterface::class => autowire(ResponseFactory::class),
             RequestFactoryInterface::class => create(RequestFactory::class),
             MiddlewareDispatcherInterface::class => create(RelayDispatcher::class)->constructor(
@@ -64,34 +60,30 @@ class Extension implements ExtensionInterface
                 get(Std::class),
                 get(DataGeneratorGroupCountBased::class)
             ),
-            RouterCollectionInterface::class => autowire(RouterCollection::class),
-            RouterDispatcherInterface::class => function (ContainerInterface $container) {
+            RouterCollection::class => autowire(FastRouterCollection::class),
+            RouterDispatcher::class => function (ContainerInterface $container) {
                 return new FastRouteDispatcher(
                     GroupCountBased::class,
                     $container->get(RouteCollector::class)
                 );
             },
-            ResolverInterface::class => function (ContainerInterface $container) {
+            Resolver::class => function (ContainerInterface $container) {
                 return new ActionResolver($container);
             },
-            SessionFactory::class => autowire(\Circli\WebCore\Session\DefaultFactory::class),
-            ActionDispatcherFactory::class => static function (ContainerInterface $container) {
-                return new ActionDispatcherFactory(
-                    $container->get(ResolverInterface::class),
+            SessionFactory::class => autowire(DefaultFactory::class),
+            ActionDispatcher::class => static function (ContainerInterface $container) {
+                $resolver = $container->get(Resolver::class);
+                $defaultDispatcher = HandlerActionDispatcher::default(
+                    $resolver,
                     $container->get(ResponseFactoryInterface::class),
-                    function (
-                        ResolverInterface $resolver,
-                        ResponseFactoryInterface $responseFactory,
-                        FactoryInterface $middlewareFactory
-                    ) {
-                        return new ActionDispatcher($resolver, $responseFactory, $middlewareFactory);
-                    }
                 );
-            },
-            SimpleActionDispatcher::class => static function (ContainerInterface $container) {
-                return new SimpleActionDispatcher(
-                    $container->get(ResolverInterface::class),
-                    $container->get(ResponseFactoryInterface::class)
+                $defaultDispatcher->addHandler(new EventActionHandler(
+                    $resolver,
+                    $container->get(EventDispatcherInterface::class)
+                ));
+                return new MiddlewareActionDispatcher(
+                    $defaultDispatcher,
+                    new MiddlewareDispatcherFactory($container->get(MiddlewareDispatcherInterface::class), $container),
                 );
             },
         ];

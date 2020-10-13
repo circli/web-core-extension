@@ -6,8 +6,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 final class PreRouteDispatch
 {
-    /** @var ServerRequestInterface */
-    private $request;
+    private ServerRequestInterface $request;
 
     public function __construct(ServerRequestInterface $request)
     {

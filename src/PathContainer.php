@@ -4,9 +4,9 @@ namespace Circli\WebCore;
 
 class PathContainer implements \Circli\Contracts\PathContainer
 {
-    private $basePath;
+    private string $basePath;
 
-    public function __construct($basePath)
+    public function __construct(string $basePath)
     {
         $this->basePath = $basePath;
     }

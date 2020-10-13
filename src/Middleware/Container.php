@@ -3,11 +3,10 @@
 namespace Circli\WebCore\Middleware;
 
 use Psr\Http\Server\MiddlewareInterface;
-use Traversable;
 
 final class Container implements \IteratorAggregate
 {
-    private $data = [];
+    private array $data = [];
 
     public const DEFAULT_PRIORITY = 500;
     private const MAX_PRE_PRIORITY = 1000;

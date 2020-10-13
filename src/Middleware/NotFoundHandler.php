@@ -36,8 +36,11 @@ class NotFoundHandler implements MiddlewareInterface
     }
 
 
-    private function dispatchNotFound(ServerRequestInterface $request, RequestHandlerInterface $handler, Route $route)
-    {
+    private function dispatchNotFound(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler,
+        Route $route
+    ): ResponseInterface {
         $newRoute = new class($this->notFoundAction, $route) implements Route {
             private Action $action;
             private Route $route;
@@ -53,21 +56,27 @@ class NotFoundHandler implements MiddlewareInterface
                 return RouterDispatcher::FOUND;
             }
 
+            /**
+             * @return string[]
+             */
             public function getAllows(): array
             {
                 return $this->route->getAllows();
             }
 
-            public function getHandler()
+            public function getHandler(): Action
             {
                 return $this->action;
             }
 
-            public function getMethod()
+            public function getMethod(): string
             {
                 return $this->route->getMethod();
             }
 
+            /**
+             * @return array<string, mixed>
+             */
             public function getAttributes(): array
             {
                 return $this->route->getAttributes();

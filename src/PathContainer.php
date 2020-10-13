@@ -35,6 +35,9 @@ class PathContainer implements \Circli\Contracts\PathContainer
         return $this->getConfigPath() . $file;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function loadConfigFile(string $file): array
     {
         $path = $this->getConfigFile($file);

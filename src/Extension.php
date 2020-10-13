@@ -37,6 +37,9 @@ use Psr\Http\Server\MiddlewareInterface;
 
 class Extension implements ExtensionInterface
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function configure(PathContainer $paths = null): array
     {
         return [
@@ -70,7 +73,6 @@ class Extension implements ExtensionInterface
             Resolver::class => function (ContainerInterface $container) {
                 return new ActionResolver($container);
             },
-            SessionFactory::class => autowire(DefaultFactory::class),
             ActionDispatcher::class => static function (ContainerInterface $container) {
                 $resolver = $container->get(Resolver::class);
                 $defaultDispatcher = HandlerActionDispatcher::default(

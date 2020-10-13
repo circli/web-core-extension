@@ -6,8 +6,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class RawInput
 {
-	public function __invoke(ServerRequestInterface $request)
-	{
-		return $request->getAttributes() + $request->getParsedBody() + $request->getQueryParams();
-	}
+    /**
+     * @return array<string, mixed>
+     */
+    public function __invoke(ServerRequestInterface $request): array
+    {
+        return (array)$request->getAttributes() + (array)$request->getParsedBody() + (array)$request->getQueryParams();
+    }
 }

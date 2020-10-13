@@ -7,12 +7,15 @@ use Circli\Contracts\InitHttpApplication;
 use Circli\Core\Events\InitModule;
 use Psr\EventDispatcher\ListenerProviderInterface;
 
+/**
+ * @implements \IteratorAggregate<InitHttpApplication|InitAdrApplication>
+ */
 final class CollectAdrModules implements ListenerProviderInterface, \Countable, \IteratorAggregate
 {
     /** @var InitHttpApplication[]|InitAdrApplication[] */
     private array $modules = [];
 
-    public function __invoke(InitModule $event)
+    public function __invoke(InitModule $event): void
     {
         $module = $event->getModule();
         if ($module instanceof InitHttpApplication || $module instanceof InitAdrApplication) {
@@ -28,6 +31,9 @@ final class CollectAdrModules implements ListenerProviderInterface, \Countable, 
         return $this->modules;
     }
 
+    /**
+     * @return iterable<callable>
+     */
     public function getListenersForEvent(object $event): iterable
     {
         if ($event instanceof InitModule) {
@@ -36,7 +42,7 @@ final class CollectAdrModules implements ListenerProviderInterface, \Countable, 
     }
 
     /**
-     * @return InitHttpApplication[]|InitAdrApplication[]|\ArrayIterator
+     * @return InitHttpApplication[]|InitAdrApplication[]|\ArrayIterator<int, InitHttpApplication|InitAdrApplication>
      */
     public function getIterator()
     {

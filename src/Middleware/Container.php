@@ -4,23 +4,31 @@ namespace Circli\WebCore\Middleware;
 
 use Psr\Http\Server\MiddlewareInterface;
 
+/**
+ * @implements \IteratorAggregate<string|MiddlewareInterface>
+ */
 final class Container implements \IteratorAggregate
 {
+    /** @var array<int, array<int, string|MiddlewareInterface>> */
     private array $data = [];
 
     public const DEFAULT_PRIORITY = 500;
     private const MAX_PRE_PRIORITY = 1000;
     private const MIN_POST_PRIORITY = 1000;
 
+    /**
+     * @param string[]|MiddlewareInterface[] $middlewares
+     */
     public function __construct(iterable $middlewares = [])
     {
-        if (count($middlewares)) {
-            foreach ($middlewares as $middleware) {
-                $this->addPreRouter($middleware);
-            }
+        foreach ($middlewares as $middleware) {
+            $this->addPreRouter($middleware);
         }
     }
 
+    /**
+     * @param string|MiddlewareInterface $middleware
+     */
     public function insert($middleware, int $priority): void
     {
         if (!isset($this->data[$priority])) {

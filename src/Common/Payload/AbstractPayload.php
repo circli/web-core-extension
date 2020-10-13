@@ -7,14 +7,19 @@ use PayloadInterop\DomainPayload;
 abstract class AbstractPayload implements DomainPayload
 {
     protected string $status;
+    /** @var array<mixed, mixed> */
     protected array $result = [];
     protected string $message;
 
+    /**
+     * @param string|array<mixed,mixed>|null $message
+     */
     public function __construct(string $status, $message = null)
     {
         if (!\defined(static::class . '::ALLOWED_STATUS')) {
             throw new \InvalidArgumentException('Invalid payload status. No statuses defined');
         }
+        /** @phpstan-ignore-next-line */
         if (!\in_array($status, static::ALLOWED_STATUS, true)) {
             throw new \InvalidArgumentException('Invalid payload status');
         }
@@ -23,8 +28,9 @@ abstract class AbstractPayload implements DomainPayload
             $this->result = $message;
             $message = null;
         }
+        /** @phpstan-ignore-next-line */
         if ($message === null && defined(static::class . '::MESSAGES') && isset(static::MESSAGES[$status])) {
-            $message = static::MESSAGES[$status];
+            $message = static::MESSAGES[$status]; // @phpstan-ignore-line
         }
         if ($message === null) {
             $message = $status;
@@ -34,7 +40,11 @@ abstract class AbstractPayload implements DomainPayload
         $this->message = (string)$message;
     }
 
-    public static function __callStatic($name, $arguments)
+    /**
+     * @param array<mixed> $arguments
+     * @return static
+     */
+    public static function __callStatic(string $name, $arguments)
     {
         try {
             $status = constant(static::class . '::' . strtoupper($name));
@@ -42,7 +52,7 @@ abstract class AbstractPayload implements DomainPayload
         catch (\Throwable $e) {
             throw new \InvalidArgumentException('Invalid payload status');
         }
-
+        /** @phpstan-ignore-next-line */
         return new static($status, ...$arguments);
     }
 
@@ -51,6 +61,9 @@ abstract class AbstractPayload implements DomainPayload
         return $this->status;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getResult(): array
     {
         return $this->result;
@@ -60,5 +73,4 @@ abstract class AbstractPayload implements DomainPayload
     {
         return $this->message;
     }
-
 }

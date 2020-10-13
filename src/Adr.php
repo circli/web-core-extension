@@ -28,7 +28,10 @@ class Adr extends \Polus\Adr\Adr
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    protected function routerContainerProxy(string $method, ...$args)
+    /**
+     * @param mixed ...$args
+     */
+    protected function routerContainerProxy(string $method, ...$args): void
     {
         $this->eventDispatcher->dispatch(new PreRegisterRoute($method, ...$args));
         parent::routerContainerProxy($method, $args);

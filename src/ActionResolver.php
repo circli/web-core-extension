@@ -19,19 +19,22 @@ class ActionResolver implements Resolver
     public function resolve(?string $class): callable
     {
         try {
-            return $this->container->get($class);
+            return $this->container->get((string)$class);
         }
         catch (NotFoundExceptionInterface $e) {
             if (\is_string($class) && class_exists($class)) {
                 return new $class();
             }
         }
-        throw new class implements NotFoundExceptionInterface {
-        };
+        throw new class extends \RuntimeException implements NotFoundExceptionInterface {};
     }
 
     public function resolveResponder(?string $responder): Responder
     {
-        return $this->resolve($responder);
+        $responder = $this->resolve($responder);
+        if (!$responder instanceof Responder) {
+            throw new class extends \RuntimeException implements NotFoundExceptionInterface {};
+        }
+        return $responder;
     }
 }

@@ -4,14 +4,14 @@ namespace Circli\WebCore;
 
 use Circli\Contracts\ExtensionInterface;
 use Circli\Contracts\PathContainer;
-use Circli\WebCore\Session\DefaultFactory;
-use Circli\WebCore\Session\Factory as SessionFactory;
+use Circli\WebCore\Exception\ExceptionHandler as DefaultExceptionHandler;
 use Laminas\Diactoros\RequestFactory;
 use Laminas\Diactoros\ResponseFactory;
 use Polus\Adr\ActionDispatcher\HandlerActionDispatcher;
 use Polus\Adr\ActionDispatcher\MiddlewareActionDispatcher;
 use Polus\Adr\ActionHandler\EventActionHandler;
 use Polus\Adr\Interfaces\ActionDispatcher;
+use Polus\Adr\Interfaces\ExceptionHandler;
 use Polus\Adr\Interfaces\Resolver;
 use Polus\Adr\Interfaces\ResponseHandler;
 use Polus\MiddlewareDispatcher\Factory as MiddlewareDispatcherFactory;
@@ -79,6 +79,13 @@ class Extension implements ExtensionInterface
                     $resolver,
                     $container->get(ResponseFactoryInterface::class),
                 );
+                if ($container->has(ExceptionHandler::class)) {
+                    $defaultDispatcher->setExceptionHandler($container->get(ExceptionHandler::class));
+                }
+                else {
+                    $defaultDispatcher->setExceptionHandler(new DefaultExceptionHandler());
+                }
+
                 $defaultDispatcher->addHandler(new EventActionHandler(
                     $resolver,
                     $container->get(EventDispatcherInterface::class)

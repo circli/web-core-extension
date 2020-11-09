@@ -6,6 +6,7 @@ use Circli\WebCore\Common\Actions\NotFoundActionInterface;
 use Polus\Adr\Interfaces\Action;
 use Polus\Router\Route;
 use Polus\Router\RouterDispatcher;
+use Polus\Router\RouterMiddleware;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -23,7 +24,7 @@ class NotFoundHandler implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $reDispatch = clone $handler;
-        $route = $request->getAttribute('route');
+        $route = $request->getAttribute(RouterMiddleware::ATTRIBUTE_KEY);
         if ($route instanceof Route && $route->getStatus() === RouterDispatcher::NOT_FOUND) {
             return $this->dispatchNotFound($request, $handler, $route);
         }
@@ -83,7 +84,7 @@ class NotFoundHandler implements MiddlewareInterface
             }
         };
 
-        $response = $handler->handle($request->withAttribute('route', $newRoute));
+        $response = $handler->handle($request->withAttribute(RouterMiddleware::ATTRIBUTE_KEY, $newRoute));
         return $response->withStatus(404);
     }
 }

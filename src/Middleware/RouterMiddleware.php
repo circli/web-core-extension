@@ -44,7 +44,7 @@ final class RouterMiddleware implements MiddlewareInterface
         }
         $event = $this->eventDispatcher->dispatch(new PostRouteDispatch($route, $request));
         $request = $event->getRequest();
-        $request = $request->withAttribute('route', $event->getRoute());
+        $request = $request->withAttribute(\Polus\Router\RouterMiddleware::ATTRIBUTE_KEY, $event->getRoute());
 
         return $handler->handle($request);
     }

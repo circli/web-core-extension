@@ -3,6 +3,7 @@
 namespace Circli\WebCore\Exception;
 
 use Circli\WebCore\Common\Payload\AccessDeniedPayload;
+use Circli\WebCore\Common\Payload\InvalidArgumentPayload;
 use Circli\WebCore\Common\Payload\NotFoundPayload;
 use PayloadInterop\DomainPayload;
 use Polus\Adr\ExceptionDomainPayload;
@@ -21,6 +22,9 @@ final class ExceptionHandler implements BaseExceptionHandler
         }
         if ($e instanceof AccessDenied) {
             return new AccessDeniedPayload();
+        }
+        if ($e instanceof \InvalidArgumentException) {
+            return new InvalidArgumentPayload($e);
         }
         if (!$e instanceof \DomainException && !$e instanceof \InvalidArgumentException) {
             throw $e;

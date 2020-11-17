@@ -16,6 +16,7 @@ final class AccessDeniedPayload implements DomainPayload
     {
         return [
             'messages' => 'Access denied',
+            'code' => 'ACCESS_DENIED',
         ];
     }
 }

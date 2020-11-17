@@ -6,5 +6,5 @@ use Psr\Http\Message\ServerRequestInterface;
 
 interface LocationAwareInterface
 {
-	public function getLocation(ServerRequestInterface $request): string;
+    public function getLocation(ServerRequestInterface $request): string;
 }

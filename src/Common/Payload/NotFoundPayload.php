@@ -24,6 +24,7 @@ final class NotFoundPayload implements DomainPayload
     {
         return [
             'messages' => $this->notFound->getMessage(),
+            'code' => 'NOT_FOUND',
         ];
     }
 }

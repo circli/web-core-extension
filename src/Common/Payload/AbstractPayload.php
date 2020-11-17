@@ -36,6 +36,10 @@ abstract class AbstractPayload implements DomainPayload
             $this->result = [
                 'messages' => $message,
             ];
+            /** @phpstan-ignore-next-line */
+            if (defined(static::class . '::MESSAGE_CODES') && isset(static::MESSAGE_CODES[$status])) {
+                $this->result['code'] = (string)static::MESSAGE_CODES[$status]; // @phpstan-ignore-line
+            }
         }
         if ($message === null) {
             $message = $status;

@@ -6,16 +6,11 @@ use Polus\Adr\Interfaces\Action;
 
 final class PreRegisterRoute
 {
-    private string $method;
-    private string $route;
-    private Action $action;
-
-    public function __construct(string $method, string $route, Action $action)
-    {
-        $this->method = $method;
-        $this->route = $route;
-        $this->action = $action;
-    }
+    public function __construct(
+        private string $method,
+        private string $route,
+        private Action $action,
+    ) {}
 
     public function getMethod(): string
     {

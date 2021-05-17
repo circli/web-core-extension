@@ -6,12 +6,9 @@ use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 
 final class MiddlewareBuildEvent
 {
-    private MiddlewareContainer $middlewareContainer;
-
-    public function __construct(MiddlewareContainer $middlewareContainer)
-    {
-        $this->middlewareContainer = $middlewareContainer;
-    }
+    public function __construct(
+        private MiddlewareContainer $middlewareContainer,
+    ) {}
 
     public function getMiddlewareContainer(): MiddlewareContainer
     {

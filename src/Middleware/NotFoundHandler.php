@@ -14,12 +14,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class NotFoundHandler implements MiddlewareInterface
 {
-    private NotFoundActionInterface $notFoundAction;
-
-    public function __construct(NotFoundActionInterface $notFoundAction)
-    {
-        $this->notFoundAction = $notFoundAction;
-    }
+    public function __construct(
+        private NotFoundActionInterface $notFoundAction,
+    ) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -36,21 +33,16 @@ class NotFoundHandler implements MiddlewareInterface
         return $response;
     }
 
-
     private function dispatchNotFound(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler,
         Route $route
     ): ResponseInterface {
         $newRoute = new class($this->notFoundAction, $route) implements Route {
-            private Action $action;
-            private Route $route;
-
-            public function __construct(Action $action, Route $route)
-            {
-                $this->action = $action;
-                $this->route = $route;
-            }
+            public function __construct(
+                private Action $action,
+                private Route $route
+            ) {}
 
             public function getStatus(): int
             {

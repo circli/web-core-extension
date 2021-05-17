@@ -12,19 +12,19 @@ use Psr\EventDispatcher\ListenerProviderInterface;
  */
 final class CollectAdrModules implements ListenerProviderInterface, \Countable, \IteratorAggregate
 {
-    /** @var InitHttpApplication[]|InitAdrApplication[] */
+    /** @var InitHttpApplication[] */
     private array $modules = [];
 
     public function __invoke(InitModule $event): void
     {
         $module = $event->getModule();
-        if ($module instanceof InitHttpApplication || $module instanceof InitAdrApplication) {
+        if ($module instanceof InitHttpApplication) {
             $this->modules[get_class($module)] = $module;
         }
     }
 
     /**
-     * @return InitHttpApplication[]|InitAdrApplication[];
+     * @return InitHttpApplication[]
      */
     public function getModules(): array
     {
@@ -42,14 +42,14 @@ final class CollectAdrModules implements ListenerProviderInterface, \Countable, 
     }
 
     /**
-     * @return InitHttpApplication[]|InitAdrApplication[]|\ArrayIterator<int, InitHttpApplication|InitAdrApplication>
+     * @return InitHttpApplication[]|\ArrayIterator<int, InitHttpApplication>
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->modules);
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->modules);
     }

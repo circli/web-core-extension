@@ -7,14 +7,10 @@ use Psr\Http\Message\ServerRequestInterface;
 
 final class PostRouteDispatch
 {
-    private Route $route;
-    private ServerRequestInterface $request;
-
-    public function __construct(Route $route, ServerRequestInterface $request)
-    {
-        $this->route = $route;
-        $this->request = $request;
-    }
+    public function __construct(
+        private Route $route,
+        private ServerRequestInterface $request,
+    ) {}
 
     public function getRoute(): Route
     {

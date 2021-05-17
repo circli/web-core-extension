@@ -2,7 +2,6 @@
 
 namespace Circli\WebCore;
 
-use Circli\Contracts\InitAdrApplication;
 use Circli\Contracts\InitHttpApplication;
 use Circli\Contracts\ModuleInterface;
 use Circli\Core\Environment;
@@ -30,13 +29,12 @@ abstract class App implements RequestHandlerInterface
     protected Adr $adr;
     protected ContainerInterface $container;
     protected CollectAdrModules $adrModules;
-    protected Container $containerBuilder;
+    protected ContainerBuilder $containerBuilder;
     protected EventDispatcherInterface $eventDispatcher;
     /** @var ModuleInterface[] */
     protected array $modules = [];
 
-
-    public function __construct(Environment $mode, string $containerClass = Container::class, string $basePath = null)
+    public function __construct(Environment $mode, string $containerClass = ContainerBuilder::class, string $basePath = null)
     {
         $this->containerBuilder = new $containerClass($mode, $basePath ?? \dirname(__DIR__, 3));
         $this->eventDispatcher = $this->containerBuilder->getEventDispatcher();
@@ -76,10 +74,7 @@ abstract class App implements RequestHandlerInterface
         );
 
         foreach ($this->adrModules as $module) {
-            if ($module instanceof InitAdrApplication) {
-                $module->initAdr($this->adr, $this->container);
-            }
-            elseif ($module instanceof InitHttpApplication) {
+            if ($module instanceof InitHttpApplication) {
                 $module->initHttp($this->adr, $this->container);
             }
         }
@@ -94,5 +89,4 @@ abstract class App implements RequestHandlerInterface
     {
         return $this->adr->handle($request);
     }
-
 }

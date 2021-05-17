@@ -13,14 +13,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class RouterMiddleware implements MiddlewareInterface
 {
-    private RouterDispatcher $routerDispatcher;
-    private EventDispatcherInterface $eventDispatcher;
-
-    public function __construct(RouterDispatcher $routerDispatcher, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->routerDispatcher = $routerDispatcher;
-        $this->eventDispatcher = $eventDispatcher;
-    }
+    public function __construct(
+        private RouterDispatcher $routerDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
+    ) {}
 
     /**
      * Process an incoming server request and return a response, optionally delegating

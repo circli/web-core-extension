@@ -13,19 +13,16 @@ use Psr\Http\Message\ResponseFactoryInterface;
 
 class Adr extends \Polus\Adr\Adr
 {
-    private EventDispatcherInterface $eventDispatcher;
-
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         Resolver $actionResolver,
         RouterCollection $routerContainer,
         ResponseHandler $responseHandler,
         MiddlewareFactory $middlewareFactory,
-        EventDispatcherInterface $eventDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
         ?ActionDispatcher $actionDispatcher = null
     ) {
         parent::__construct($responseFactory, $actionResolver, $routerContainer, $responseHandler, $middlewareFactory, $actionDispatcher);
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**

@@ -41,7 +41,7 @@ class Extension implements ExtensionInterface
         $this->paths = $paths;
     }
 
-    public function configure(): array
+    public function configure(PathContainer $pathContainer = null): array
     {
         return [
             'adr.relay_resolver' => function (ContainerInterface $container) {

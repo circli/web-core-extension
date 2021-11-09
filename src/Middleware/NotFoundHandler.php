@@ -3,6 +3,7 @@
 namespace Circli\WebCore\Middleware;
 
 use Circli\WebCore\Common\Actions\NotFoundActionInterface;
+use Circli\WebCore\Routes\WrapperRoute;
 use Polus\Adr\Interfaces\Action;
 use Polus\Router\Route;
 use Polus\Router\RouterDispatcher;
@@ -38,45 +39,10 @@ class NotFoundHandler implements MiddlewareInterface
         RequestHandlerInterface $handler,
         Route $route
     ): ResponseInterface {
-        $newRoute = new class($this->notFoundAction, $route) implements Route {
-            public function __construct(
-                private Action $action,
-                private Route $route
-            ) {}
-
-            public function getStatus(): int
-            {
-                return RouterDispatcher::FOUND;
-            }
-
-            /**
-             * @return string[]
-             */
-            public function getAllows(): array
-            {
-                return $this->route->getAllows();
-            }
-
-            public function getHandler(): Action
-            {
-                return $this->action;
-            }
-
-            public function getMethod(): string
-            {
-                return $this->route->getMethod();
-            }
-
-            /**
-             * @return array<string, mixed>
-             */
-            public function getAttributes(): array
-            {
-                return $this->route->getAttributes();
-            }
-        };
-
-        $response = $handler->handle($request->withAttribute(RouterMiddleware::ATTRIBUTE_KEY, $newRoute));
-        return $response->withStatus(404);
+        return $handler->handle($request->withAttribute(RouterMiddleware::ATTRIBUTE_KEY, new WrapperRoute(
+            $route,
+            handler: $this->notFoundAction,
+            status: RouterDispatcher::FOUND,
+        )))->withStatus(404);
     }
 }

@@ -5,8 +5,7 @@ namespace Circli\WebCore;
 use Circli\Contracts\ExtensionInterface;
 use Circli\Contracts\PathContainer;
 use Circli\WebCore\Exception\ExceptionHandler as DefaultExceptionHandler;
-use Laminas\Diactoros\RequestFactory;
-use Laminas\Diactoros\ResponseFactory;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Polus\Adr\ActionDispatcher\HandlerActionDispatcher;
 use Polus\Adr\ActionDispatcher\MiddlewareActionDispatcher;
 use Polus\Adr\ActionHandler\EventActionHandler;
@@ -53,8 +52,8 @@ class Extension implements ExtensionInterface
                 };
             },
             ResponseHandler::class => autowire(HttpResponseHandler::class),
-            ResponseFactoryInterface::class => autowire(ResponseFactory::class),
-            RequestFactoryInterface::class => create(RequestFactory::class),
+            ResponseFactoryInterface::class => autowire(Psr17Factory::class),
+            RequestFactoryInterface::class => create(Psr17Factory::class),
             MiddlewareDispatcherInterface::class => create(RelayDispatcher::class)->constructor(
                 get(ResponseFactoryInterface::class),
                 get('adr.relay_resolver')

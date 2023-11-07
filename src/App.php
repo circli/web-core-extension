@@ -9,7 +9,6 @@ use Circli\WebCore\Events\Listeners\CollectAdrModules;
 use Circli\WebCore\Events\MiddlewareBuildEvent;
 use Circli\WebCore\Middleware\Container as MiddlewareContainer;
 use Circli\WebCore\Middleware\RouterMiddleware;
-use Laminas\Diactoros\ServerRequestFactory;
 use Polus\Adr\Interfaces\ActionDispatcher;
 use Polus\Adr\Interfaces\Resolver;
 use Polus\Adr\Interfaces\ResponseHandler;
@@ -82,7 +81,8 @@ abstract class App implements RequestHandlerInterface
 
     public function run(): ResponseHandler
     {
-        return $this->adr->run(ServerRequestFactory::fromGlobals());
+        $marshal = new ServerRequestMarshal();
+        return $this->adr->run($marshal->marshal($_SERVER));
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

@@ -39,7 +39,7 @@ class Extension implements ExtensionInterface
     /**
      * @return array<string, mixed>
      */
-    public function configure(PathContainer $paths = null): array
+    public function configure(?PathContainer $paths = null): array
     {
         return [
             'adr.relay_resolver' => function (ContainerInterface $container) {

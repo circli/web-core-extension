@@ -33,7 +33,7 @@ abstract class App implements RequestHandlerInterface
     /** @var ModuleInterface[] */
     protected array $modules = [];
 
-    public function __construct(Environment $mode, string $containerClass = ContainerBuilder::class, string $basePath = null)
+    public function __construct(Environment $mode, string $containerClass = ContainerBuilder::class, ?string $basePath = null)
     {
         $this->containerBuilder = new $containerClass($mode, $basePath ?? \dirname(__DIR__, 3));
         $this->eventDispatcher = $this->containerBuilder->getEventDispatcher();
